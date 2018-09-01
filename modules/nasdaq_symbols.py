@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 
-# Retrieve, clean, and write Nasdaq data to txt file
+# Gets Nasdaq stock symbols, creates a .txt file, and adds symbols to list
 
 import urllib.request
 
 def get_nasdaq():
+    # Retrieve, clean, and write Nasdaq data to .txt file
     nasdaq_url = "http://www.nasdaqtrader.com/dynamic/SymDir/nasdaqlisted.txt"
     nasdaq = urllib.request.urlopen(nasdaq_url)
     if nasdaq.getcode() == 200:
@@ -21,7 +22,7 @@ def get_nasdaq():
             nasdaq_txt.write(symbol + "\n") 
         nasdaq_txt.close()
 
-    # Take stock symbols from created nasdaq txt file and add them to list
+    # Take stock symbols from created Nasdaq .txt file and add them to list
     nasdaq_txt = open(f"nasdaq.txt", "r")
     lines = nasdaq_txt.readlines()
     stock_symbols = []
