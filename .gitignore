@@ -1,0 +1,11 @@
+#Byte Code
+*.pyc
+__pycache__/
+
+# Text Editor Settings
+.vscode/
+
+# Directories/Files Created By Code
+Financial Data/
+error_log.txt
+nasdaq.txt
