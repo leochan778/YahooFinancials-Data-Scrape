@@ -1,4 +1,4 @@
-#Byte Code
+# Byte Code
 *.pyc
 __pycache__/
 
