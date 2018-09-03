@@ -8,8 +8,8 @@ def get_nasdaq():
     # Retrieve, clean, and write Nasdaq data to .txt file
     nasdaq_url = "http://www.nasdaqtrader.com/dynamic/SymDir/nasdaqlisted.txt"
     nasdaq = urllib.request.urlopen(nasdaq_url)
-    if nasdaq.getcode() == 200:
-        nasdaq_txt = open(f"nasdaq.txt", "w")
+    if nasdaq.status == 200:
+        nasdaq_txt = open("nasdaq.txt", "w")
         for line in nasdaq:
             # eg AAPL|Apple Inc. - Common Stock|Q|N|N|100|N|N
             line = line.decode("utf-8")
@@ -22,14 +22,8 @@ def get_nasdaq():
             nasdaq_txt.write(symbol + "\n") 
         nasdaq_txt.close()
 
-    # Take stock symbols from created Nasdaq .txt file and add them to list
-    nasdaq_txt = open(f"nasdaq.txt", "r")
-    lines = nasdaq_txt.readlines()
-    stock_symbols = []
-    for line in lines: # Strip spaces/carriage returns before appending symbol to list
-        stock_symbols.append(line.rstrip("\n "))
-    nasdaq_txt.close()
+    # Take stock symbols from created .txt file and add them to list
+    stock_symbols = [line.strip() for line in open("nasdaq.txt", "r")]
 
+    # nasdaq.txt and stock_symbols may include non-symbol data which will be caught by error handling
     return stock_symbols
-
-if __name__ == "__main__": main()
