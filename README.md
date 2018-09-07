@@ -5,6 +5,8 @@ The Python code in this repo scrapes [Yahoo Finance](https://finance.yahoo.com/)
 * Balance Sheet
 * Statement of Cash Flows
 
+The functionality of this code depends on the HTML structure and URLs of Yahoo Finance's web pages which may change at any time. 
+
 > This repo is neither affiliated with nor sponsored by Yahoo. Ensure that you read Yahoo's [terms of service](https://policies.oath.com/us/en/oath/terms/otos/index.html).
 
 ## Usage
