@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 
-import urllib.request, os.path, csv, sys
-from modules import nasdaq_symbols, log_error, scrape_write_data
+import urllib.request, os.path, shutil, csv, sys
+from modules import nasdaq_symbols, write_logs, scrape_write_data
 from bs4 import BeautifulSoup
+logger = write_logs.write_log_entry
 
 # Option 1
 # Manually set the stock symbols for the companies, eg stock_symbols = ("AMZN", "NFLX", "TSLA")
@@ -19,14 +20,20 @@ financial_statements = ("financials", "balance-sheet", "cash-flow")
 def main(stock_symbols):
     # Create main dir
     main_dir = "Financial Data"
-    if os.path.isdir(main_dir) == False:
+    if os.path.isdir(main_dir):
+        logger(f"{main_dir} directory already exists.")
+    else:    
         os.mkdir(main_dir)
+        logger(f"Created {main_dir} directory.")
 
     # Create symbol dir and set company
     for symbol in stock_symbols:
         sym_dir = f"{main_dir}/{symbol}"
-        if os.path.isdir(sym_dir) == False:
+        if os.path.isdir(sym_dir):
+            logger(f"{symbol} directory already exists.")
+        else:
             os.mkdir(sym_dir)
+            logger(f"Created {symbol} directory.")
 
         # Set company statement and send request to YF
         for statement in financial_statements:
@@ -37,33 +44,38 @@ def main(stock_symbols):
                 with open(filepath, "r") as file:
                     if file.readlines() != []: # satisified if content is already written to file
                         file.close()
+                        logger(f"{symbol}'s {statement} data already exists within {symbol} directory.")
                         continue
-                    else:
+                    else: 
                         file.close()
+                        logger(f"{symbol}'s {statement} file already exists within {symbol} but has no data.")
                
             try:
                 url = f"https://finance.yahoo.com/quote/{symbol}/{statement}?p={symbol}"
                 statement_url = urllib.request.urlopen(url, timeout=2)
             except:
                 # Log error, remove already created dir for company, and move on to next company
-                log_error.write_error(f"{sys.exc_info()[1]}.\nRecheck the URL: {url}.")
-                try:
+                logger(f"{sys.exc_info()[1]}: Recheck the URL: {url}.")
+                if len(os.listdir(sym_dir)) > 0:
+                    shutil.rmtree(sym_dir)
+                    logger(f"{symbol} directory was successfully removed along with its contents.")
+                else:
                     os.rmdir(sym_dir)
-                # If dir is not empty, log error
-                except:
-                    log_error.write_error(f"{sys.exc_info()[1]}\n{symbol} directory could not be removed because it has content.")
+                    logger(f"The {symbol} directory had no content and was successfully removed.")
                 break
 
             # Open new CSV file, scrape/write data, close file
             if statement_url.status == 200:
                 # If request results in redirected url, remove created dir for company and move on to next company
                 if statement_url.url == f"https://finance.yahoo.com/lookup?s={symbol.upper()}":
-                    log_error.write_error(f"There was a redirect to Yahoo Finance's lookup page.\nRecheck the stock symbol: {symbol}.")
-                    try:
+                    # Log error, remove already created dir for company, and move on to next company
+                    logger(f"There was a redirect to Yahoo Finance's lookup page. Recheck the stock symbol: {symbol}.")
+                    if len(os.listdir(sym_dir)) > 0:
+                        shutil.rmtree(sym_dir)
+                        logger(f"{symbol} directory was successfully removed along with its contents.")
+                    else:
                         os.rmdir(sym_dir)
-                    # If dir is not empty, log error
-                    except:
-                        log_error.write_error(f"{sys.exc_info()[1]}\n{symbol} directory could not be removed because it has content.")
+                        logger(f"The {symbol} directory had no content and was successfully removed.")
                     break
 
                 new_csv = open(filepath, "w") 
@@ -71,8 +83,9 @@ def main(stock_symbols):
                     
                 soup = BeautifulSoup(statement_url, "html.parser")
                 scrape_write_data.scrape_write(soup, csv_writer)
-                new_csv.close() 
+                new_csv.close()
+                logger(f"Wrote {symbol}'s {statement} data to file.")
             else:
-                log_error.write_error(f"The returned HTTP code is: {url.status}.")
+                logger(f"The returned HTTP code for {symbol}'s {statement} request is: {url.status}.")
 
 if __name__ == "__main__": main(stock_symbols)
