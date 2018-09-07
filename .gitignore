@@ -7,5 +7,5 @@ __pycache__/
 
 # Directories/Files Created By Code
 Financial Data/
-error_log.txt
+logs.txt
 nasdaq.txt
