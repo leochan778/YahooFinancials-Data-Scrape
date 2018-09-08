@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import urllib.request, os.path, shutil, csv, sys
+import os.path, shutil, csv, sys, requests
 from modules import nasdaq_symbols, write_logs, scrape_write_data
 from bs4 import BeautifulSoup
 logger = write_logs.write_log_entry
@@ -37,55 +37,55 @@ def main(stock_symbols):
 
         # Set company statement and send request to YF
         for statement in financial_statements:
-            # If file already exists and has content, move on to next statement
-            # This ensures that you can stop and restart script w/out rewriting content already written to file
+            # Ensures script can be restarted w/out rewriting data already written to file
             filepath = f"{sym_dir}/{symbol}_{statement}.csv"
             if os.path.exists(filepath):
                 with open(filepath, "r") as file:
                     if file.readlines() != []: # satisified if content is already written to file
                         file.close()
                         logger(f"{symbol}'s {statement} data already exists within {symbol} directory.")
-                        continue
+                        continue # Move on to next statement
                     else: 
                         file.close()
                         logger(f"{symbol}'s {statement} file already exists within {symbol} but has no data.")
                
             try:
                 url = f"https://finance.yahoo.com/quote/{symbol}/{statement}?p={symbol}"
-                statement_url = urllib.request.urlopen(url, timeout=2)
-            except:
-                # Log error, remove already created dir for company, and move on to next company
-                logger(f"{sys.exc_info()[1]}: Recheck the URL: {url}.")
-                if len(os.listdir(sym_dir)) > 0:
-                    shutil.rmtree(sym_dir)
-                    logger(f"{symbol} directory was successfully removed along with its contents.")
-                else:
-                    os.rmdir(sym_dir)
-                    logger(f"The {symbol} directory had no content and was successfully removed.")
-                break
+                response = requests.get(url, timeout=2)
+                response.raise_for_status()
+            except requests.exceptions.RequestException as error:
+                logger(f"{error}: Recheck the URL: {url}.")
+                remove_dir(sym_dir, symbol)
+                break # Move one to next company
+            
+            # If request results in redirected url
+            if response.url == f"https://finance.yahoo.com/lookup?s={symbol.upper()}":
+                logger(f"There was a redirect to Yahoo Finance's lookup page. Recheck the stock symbol: {symbol}.")
+                remove_dir(sym_dir, symbol)
+                break # Move one to next company
 
             # Open new CSV file, scrape/write data, close file
-            if statement_url.status == 200:
-                # If request results in redirected url, remove created dir for company and move on to next company
-                if statement_url.url == f"https://finance.yahoo.com/lookup?s={symbol.upper()}":
-                    # Log error, remove already created dir for company, and move on to next company
-                    logger(f"There was a redirect to Yahoo Finance's lookup page. Recheck the stock symbol: {symbol}.")
-                    if len(os.listdir(sym_dir)) > 0:
-                        shutil.rmtree(sym_dir)
-                        logger(f"{symbol} directory was successfully removed along with its contents.")
-                    else:
-                        os.rmdir(sym_dir)
-                        logger(f"The {symbol} directory had no content and was successfully removed.")
-                    break
-
-                new_csv = open(filepath, "w") 
-                csv_writer = csv.writer(new_csv, quoting=csv.QUOTE_MINIMAL)
+            new_csv = open(filepath, "w") 
+            csv_writer = csv.writer(new_csv, quoting=csv.QUOTE_MINIMAL)
                     
-                soup = BeautifulSoup(statement_url, "html.parser")
+            try:
+                soup = BeautifulSoup(response.text, "html.parser")
                 scrape_write_data.scrape_write(soup, csv_writer)
-                new_csv.close()
-                logger(f"Wrote {symbol}'s {statement} data to file.")
-            else:
-                logger(f"The returned HTTP code for {symbol}'s {statement} request is: {url.status}.")
+            except:
+                logger(f"{sys.exc_info()[1]}: Issue with scraping the data for {symbol}'s {statement} file.")
+                remove_dir(sym_dir, symbol)
+                break # Move one to next company
+
+            new_csv.close()
+            logger(f"Wrote {symbol}'s {statement} data to file.")
+
+# Removes dir and logs info
+def remove_dir(path, symbol):
+    if len(os.listdir(path)) > 0:
+        shutil.rmtree(path)
+        logger(f"{symbol} directory was successfully removed along with its contents.")
+    else:
+        os.rmdir(path)
+        logger(f"The {symbol} directory had no content and was successfully removed.")
 
 if __name__ == "__main__": main(stock_symbols)
