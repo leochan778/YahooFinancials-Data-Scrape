@@ -22,6 +22,7 @@ The most common errors are handled and logged in a .txt file.
 
 ## Dependencies
 [Beautiful Soup 4](https://www.crummy.com/software/BeautifulSoup/)
+[Requests](http://docs.python-requests.org/en/master/)
 
 ## Authors
 **Jordan Bradford** - GitHub: [jrdnbradford](https://github.com/jrdnbradford)
