@@ -18,7 +18,7 @@ Option 2 is a massive data harvest that fetches the stock symbols for *all* the 
 
 If you run the script to obtain some data and then stop the script, it can be restarted without having to redo the scraping and file writing that has already been completed. The script will check to see if the particular report already exists; if it does, it will go on to the next.
 
-The most common errors are handled and logged in a .txt file.
+General logging tracks your scraping progress and possible errors.
 
 ## Dependencies
 * [Beautiful Soup 4](https://www.crummy.com/software/BeautifulSoup/)
