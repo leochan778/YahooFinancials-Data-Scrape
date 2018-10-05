@@ -56,13 +56,13 @@ def main(stock_symbols):
             except requests.exceptions.RequestException as error:
                 logger(f"{error}: Recheck the URL: {url}.")
                 remove_dir(sym_dir, symbol)
-                break # Move one to next company
+                break # Move on to next company
             
             # If request results in redirected url
             if response.url == f"https://finance.yahoo.com/lookup?s={symbol.upper()}":
                 logger(f"There was a redirect to Yahoo Finance's lookup page. Recheck the stock symbol: {symbol}.")
                 remove_dir(sym_dir, symbol)
-                break # Move one to next company
+                break # Move on to next company
 
             # Open new CSV file, scrape/write data, close file
             new_csv = open(filepath, "w") 
@@ -74,7 +74,7 @@ def main(stock_symbols):
             except:
                 logger(f"{sys.exc_info()[1]}: Issue with scraping the data for {symbol}'s {statement} file.")
                 remove_dir(sym_dir, symbol)
-                break # Move one to next company
+                break # Move on to next company
 
             new_csv.close()
             logger(f"Wrote {symbol}'s {statement} data to file.")
