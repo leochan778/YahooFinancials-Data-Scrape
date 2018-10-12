@@ -13,12 +13,7 @@ def get_nasdaq():
         for line in nasdaq:
             # eg AAPL|Apple Inc. - Common Stock|Q|N|N|100|N|N
             line = line.decode("utf-8")
-            symbol = ""
-            x = 0
-            # Assign characters to symbol var one at a time until | is encountered
-            while line[x] != "|": 
-                symbol += line[x]  
-                x += 1 
+            symbol = line.split("|")[0]
             nasdaq_txt.write(symbol + "\n") 
         nasdaq_txt.close()
 
