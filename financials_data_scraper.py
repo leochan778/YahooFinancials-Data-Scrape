@@ -41,12 +41,10 @@ def main(stock_symbols):
             filepath = f"{sym_dir}/{symbol}_{statement}.csv"
             if os.path.exists(filepath):
                 with open(filepath, "r") as file:
-                    if file.readlines() != []: # satisified if content is already written to file
-                        file.close()
+                    if file.readlines() != []: # Satisified if content is already written to file
                         logger(f"{symbol}'s {statement} data already exists within {symbol} directory.")
-                        continue # Move on to next statement
-                    else: 
-                        file.close()
+                        continue # Move on to next financial statement
+                    else:
                         logger(f"{symbol}'s {statement} file already exists within {symbol} but has no data.")
                
             try:
