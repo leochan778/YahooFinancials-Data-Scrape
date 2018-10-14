@@ -16,4 +16,3 @@ def write_log_entry(entry):
     else:
         with open(logs_file, "w") as file:
             file.write(f"LOG FILE (Created on {date})\n{log_entry}")
-    file.close()
