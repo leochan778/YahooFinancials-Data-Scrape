@@ -14,9 +14,9 @@ def scrape_write(soup, writer):
     # For every row, write contents returned from return_row() to .csv
     for tablerow in tablerow_tags:
         tabledata_tags = tablerow.findAll("td")
-        span_tags = tablerow.findAll("span")
         
-        if len(tabledata_tags) > 1: # Don't write descriptive rows w/ only 1 <td>
+        # Don't write descriptive rows w/ only 1 <td>
+        if len(tabledata_tags) > 1: 
             row_contents = []
             
             for tabledata_tag in tabledata_tags:
