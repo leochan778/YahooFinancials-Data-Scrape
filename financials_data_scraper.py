@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import os.path, shutil, csv, sys, requests
+import os.path, shutil, csv, sys, requests, time
 from modules import nasdaq_symbols, write_logs, scrape_write_data
 from bs4 import BeautifulSoup
 logger = write_logs.write_log_entry
@@ -37,26 +37,32 @@ def main(stock_symbols):
 
         # Set company statement and send request to YF
         for statement in financial_statements:
-            # Ensures script can be restarted w/out rewriting data already written to file
+            # Skip making request if data already exists
             filepath = f"{sym_dir}/{symbol}_{statement}.csv"
             if os.path.exists(filepath):
-                with open(filepath, "r") as file:
-                    if file.readlines() != []: # Satisified if content is already written to file
+                with open(filepath, "r") as f:
+                    if f.readlines() != []: # Satisified if content is already written to file
                         logger(f"{symbol}'s {statement} data already exists within {symbol} directory.")
                         continue # Move on to next financial statement
                     else:
                         logger(f"{symbol}'s {statement} file already exists within {symbol} but has no data.")
-               
+            
+            # Send request
             try:
                 url = f"https://finance.yahoo.com/quote/{symbol}/{statement}?p={symbol}"
                 response = requests.get(url, timeout=2)
-                response.raise_for_status()
+                response.raise_for_status()  
             except requests.exceptions.RequestException as error:
                 logger(f"{error}: Recheck the URL: {url}.")
                 remove_dir(sym_dir, symbol)
                 break # Move on to next company
+            except: 
+                logger(f"Unexpected error: {sys.exc_info()[0]}.")
+                break # Move on to next company
+            finally:
+                 time.sleep(0.5) # Be nice to Yahoo
             
-            # If request results in redirected url
+            # If request results in redirected lookup url
             if response.url == f"https://finance.yahoo.com/lookup?s={symbol.upper()}":
                 logger(f"There was a redirect to Yahoo Finance's lookup page. Recheck the stock symbol: {symbol}.")
                 remove_dir(sym_dir, symbol)
