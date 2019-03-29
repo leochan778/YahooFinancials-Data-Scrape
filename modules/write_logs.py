@@ -11,8 +11,8 @@ def write_log_entry(entry):
     log_entry = f"{date}: {entry}"
     
     if os.path.exists(logs_file):
-        with open(logs_file, "a") as file:
-            file.write(f"\n{log_entry}")
+        with open(logs_file, "a") as f:
+            f.write(f"\n{log_entry}")
     else:
-        with open(logs_file, "w") as file:
-            file.write(f"LOG FILE (Created on {date})\n{log_entry}")
+        with open(logs_file, "w") as f:
+            f.write(f"LOG FILE (Created on {date})\n{log_entry}")

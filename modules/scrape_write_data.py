@@ -9,9 +9,10 @@ def scrape_write(soup, writer):
     tablerow_tags = table_tag.findAll("tr")
 
     # Change "Period Ending" or "Revenue" text in first <tr><td><span> 
+    # This is the first column's header
     tablerow_tags[0].td.span.string = "Financial Category"
                         
-    # For every row, write contents returned from return_row() to .csv
+    # For every row, write contents to .csv
     for tablerow in tablerow_tags:
         tabledata_tags = tablerow.findAll("td")
         
@@ -27,4 +28,4 @@ def scrape_write(soup, writer):
                 else: 
                     text = None
                 row_contents.append(text)
-            writer.writerow(row_contents)            
+            writer.writerow(row_contents)    
