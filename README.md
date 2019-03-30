@@ -1,4 +1,4 @@
-# YahooFinance-Data-Scrape
+# YahooFinancials-Data-Scrape
 The Python code in this repo scrapes [Yahoo Finance](https://finance.yahoo.com/) for financial report data and writes that data to local .csv files for analysis and visualization. For any specified publicly traded company, it retrieves the annual versions of the three following financial reports from the last four years:
 
 * Income Statement
