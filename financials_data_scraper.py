@@ -35,7 +35,7 @@ def main(stock_symbols):
             os.mkdir(sym_dir)
             logger(f"Created {symbol} directory.")
 
-        # Set company statement and send request to YF
+        # Set company statement
         for statement in financial_statements:
             # Skip making request if data already exists
             filepath = f"{sym_dir}/{symbol}_{statement}.csv"
@@ -47,8 +47,7 @@ def main(stock_symbols):
                     else:
                         logger(f"{symbol}'s {statement} file already exists within {symbol} but has no data.")
             
-            # Send request
-            try:
+            try: # Send request
                 url = f"https://finance.yahoo.com/quote/{symbol}/{statement}?p={symbol}"
                 response = requests.get(url, timeout=2)
                 response.raise_for_status()  
@@ -59,8 +58,8 @@ def main(stock_symbols):
             except: 
                 logger(f"Unexpected error: {sys.exc_info()[0]}.")
                 break # Move on to next company
-            finally:
-                 time.sleep(0.5) # Be nice to Yahoo
+            finally: # Be nice to Yahoo
+                 time.sleep(0.5) 
             
             # If request results in redirected lookup url
             if response.url == f"https://finance.yahoo.com/lookup?s={symbol.upper()}":
@@ -68,20 +67,18 @@ def main(stock_symbols):
                 remove_dir(sym_dir, symbol)
                 break # Move on to next company
 
-            # Open new CSV file, scrape/write data, close file
-            new_csv = open(filepath, "w") 
-            csv_writer = csv.writer(new_csv, quoting=csv.QUOTE_MINIMAL)
-                    
-            try:
-                soup = BeautifulSoup(response.text, "html.parser")
-                scrape_write_data.scrape_write(soup, csv_writer)
-            except:
-                logger(f"{sys.exc_info()[1]}: Issue with scraping the data for {symbol}'s {statement} file.")
-                remove_dir(sym_dir, symbol)
-                break # Move on to next company
+            # Scrape/write data to file
+            with open(filepath, "w") as new_csv:
+                csv_writer = csv.writer(new_csv, quoting=csv.QUOTE_MINIMAL)   
+                try:
+                    soup = BeautifulSoup(response.text, "html.parser")
+                    scrape_write_data.scrape_write(soup, csv_writer)
+                    logger(f"Wrote {symbol}'s {statement} data to file.")
+                except:
+                    logger(f"{sys.exc_info()[1]}: Issue with scraping the data for {symbol}'s {statement} file.")
+                    remove_dir(sym_dir, symbol)
+                    break # Move on to next company
 
-            new_csv.close()
-            logger(f"Wrote {symbol}'s {statement} data to file.")
 
 # Removes dir and logs info
 def remove_dir(path, symbol):
@@ -91,5 +88,6 @@ def remove_dir(path, symbol):
     else:
         os.rmdir(path)
         logger(f"The {symbol} directory had no content and was successfully removed.")
+
 
 if __name__ == "__main__": main(stock_symbols)
