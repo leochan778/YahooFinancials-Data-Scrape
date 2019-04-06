@@ -10,20 +10,18 @@ def scrape_write(soup, writer):
 
     # Change "Period Ending" or "Revenue" text in first <tr><td><span> 
     # This is the first column's header
-    tablerow_tags[0].td.span.string = "Financial Category"
+    tablerow_tags[0].td.span.string = "Financial-Category"
                         
     # For every row, write contents to .csv
     for tablerow in tablerow_tags:
         tabledata_tags = tablerow.findAll("td")
-        
         # Don't write descriptive rows w/ only 1 <td>
         if len(tabledata_tags) > 1: 
             row_contents = []
-            
             for tabledata_tag in tabledata_tags:
                 # Satisfied if <td> in row has <span> w/ data
-                if tabledata_tag.span:  
-                    text = tabledata_tag.span.text
+                if tabledata_tag.span:
+                    text = tabledata_tag.span.text.replace(",", "").replace(" ", "-")
                 # Satisfied if <td> does not have <span> w/ data and placeholder is needed
                 else: 
                     text = None
