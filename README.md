@@ -22,6 +22,7 @@ General logging tracks your scraping progress and possible errors.
 
 ## Dependencies
 * [Beautiful Soup 4](https://www.crummy.com/software/BeautifulSoup/)
+* [pandas](https://pandas.pydata.org/)
 * [Requests](http://docs.python-requests.org/en/master/)
 
 ## Authors
