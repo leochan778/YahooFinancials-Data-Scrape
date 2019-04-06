@@ -10,9 +10,18 @@ logger = write_logs.write_log_entry
 # stock_symbols = () 
 
 # Option 2
-# nasdaq_symbols.get_nasdaq() returns a list of every publicly traded company currently listed on the Nasdaq
-# Use w/ care!
-# stock_symbols = nasdaq_symbols.get_nasdaq() 
+# Requests data from Nasdaq site or uses local data. Use w/ care!
+# if not os.path.exists("nasdaq.txt"):
+#     stock_symbols = nasdaq_symbols.request_nasdaq() 
+# else:
+#     mod_time = os.path.getmtime("nasdaq.txt")
+#     epoch_day = 86400
+#     current_epoch = time.time()
+#     # Get new data if file is a day old
+#     if (mod_time + epoch_day) <= current_epoch:
+#         stock_symbols = nasdaq_symbols.request_nasdaq() 
+#     else: # Or use local data
+#         stock_symbols = nasdaq_symbols.get_nasdaq()
 
 financial_statements = ("financials", "balance-sheet", "cash-flow")
 
